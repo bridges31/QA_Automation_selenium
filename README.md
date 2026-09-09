@@ -107,3 +107,11 @@ Este proyecto sirve como base para seguir ampliando automatizaciones de aplicaci
 - [Selenium WebDriver Documentation](https://www.selenium.dev/documentation/webdriver/)
 - [Mocha Documentation](https://mochajs.org/)
 - [Chai Documentation](https://www.chaijs.com/)
+  
+## Notas técnicas y bugs encontrados
+
+Durante el desarrollo de esta suite se detectaron y corrigieron los siguientes problemas reales, documentados aquí como referencia:
+
+- **`StaleElementReferenceError` al agregar productos al carrito y al ordenar la lista**: Saucedemo re-renderiza el botón "Add to cart" (cambia a "Remove") y el dropdown de ordenamiento tras cada acción, invalidando las referencias que Selenium tenía guardadas. Solución: volver a consultar el elemento fresco en cada iteración de la espera (`pages/SaucedemoHomePage.ts`, métodos `addProductByIndex` y `sortBy`).
+- **Popup nativo de Chrome por contraseña filtrada**: la contraseña de prueba `secret_sauce` es pública y Chrome la marca como comprometida, mostrando un aviso nativo que interfiere con la automatización. Se desactivó la función de gestión/detección de contraseñas de Chrome vía `ChromeOptions.setUserPreferences` (`tests/saucedemo.spec.ts`).
+- **Incompatibilidad de versión de ChromeDriver en CI vs. local**: el paquete `chromedriver` fija una versión específica del driver, que queda desactualizada frente a versiones más recientes de Chrome. Se eliminó esa dependencia en favor de **Selenium Manager** (integrado en `selenium-webdriver` 4.6+), que detecta el navegador instalado y descarga el driver compatible automáticamente.
