@@ -1,4 +1,3 @@
-import 'chromedriver';
 import { Builder, WebDriver } from 'selenium-webdriver';
 import { Options as ChromeOptions } from 'selenium-webdriver/chrome';
 import { expect } from 'chai';
@@ -17,6 +16,14 @@ describe('Saucedemo - E-commerce Application Tests', () => {
 
   beforeEach(async () => {
     const options = new ChromeOptions();
+    options.setUserPreferences({
+      credentials_enable_service: false,
+      'profile.password_manager_enabled': false,
+      'profile.password_manager_leak_detection': false,
+    });
+    options.addArguments(
+      '--disable-features=PasswordLeakDetection,PasswordManagerOnboarding,PasswordChangeToastUI'
+    );
     if (process.env.CI || process.env.HEADLESS !== 'false') {
       options.addArguments('--headless=new', '--no-sandbox', '--disable-dev-shm-usage', '--window-size=1280,800');
     }
@@ -176,8 +183,8 @@ describe('Saucedemo - E-commerce Application Tests', () => {
     const homePage = new SaucedemoHomePage(driver);
     await homePage.logout();
 
-    const isUsernameVisible = await loginPage.isVisible('[data-test="username"]');
-    const isLoginButtonVisible = await loginPage.isVisible('[data-test="login-button"]');
+    const isUsernameVisible = await loginPage.isVisible('[data-test="username"]', 8000);
+    const isLoginButtonVisible = await loginPage.isVisible('[data-test="login-button"]', 8000);
     expect(isUsernameVisible).to.be.true;
     expect(isLoginButtonVisible).to.be.true;
   });
