@@ -20,11 +20,14 @@ export class SaucedemoCheckoutPage extends BasePage {
     await this.type(this.lastNameInput, lastName);
     await this.type(this.postalCodeInput, postalCode);
     await this.click(this.continueButton);
-    await this.waitForNavigation();
+    await this.driver.wait(async () => {
+      const url = await this.driver.getCurrentUrl();
+      return url.includes('checkout-step-two');
+    }, 15000);
   }
 
   async getOrderTotal() {
-    const element = await this.findVisible(this.summaryTotalLabel);
+    const element = await this.findVisible(this.summaryTotalLabel, 15000);
     return await element.getText();
   }
 
