@@ -7,6 +7,7 @@ export class SaucedemoHomePage extends BasePage {
   readonly productList = '[data-test="inventory-item"]';
   readonly addToCartButton = 'button[data-test*="add-to-cart"]';
   readonly sortDropdown = '[data-test="product-sort-container"]';
+  readonly productPrice = '.inventory_item_price';
   readonly menuButton = '#react-burger-menu-btn';
   readonly logoutLink = '#logout_sidebar_link';
 
@@ -60,11 +61,32 @@ export class SaucedemoHomePage extends BasePage {
     return '0';
   }
 
-  async sortBy(optionValue: string) {
+   async sortBy(optionValue: string) {
     const dropdown = await this.findVisible(this.sortDropdown);
     await dropdown.click();
     const option = await dropdown.findElement(By.css(`option[value="${optionValue}"]`));
     await option.click();
+    // Re-consultamos el dropdown fresco: el re-render de la lista
+    // invalida la referencia original, igual que con el botón de "Add to cart".
+    await this.driver.wait(async () => {
+      try {
+        const freshDropdown = await this.driver.findElement(By.css(this.sortDropdown));
+        const selected = await freshDropdown.getAttribute('value');
+        return selected === optionValue;
+      } catch {
+        return false;
+      }
+    }, 5000);
+  }
+
+  async getProductPrices(): Promise<number[]> {
+    const priceElements = await this.driver.findElements(By.css(this.productPrice));
+    const prices: number[] = [];
+    for (const el of priceElements) {
+      const text = await el.getText(); // ej. "$29.99"
+      prices.push(parseFloat(text.replace('$', '')));
+    }
+    return prices;
   }
 
   async logout() {
