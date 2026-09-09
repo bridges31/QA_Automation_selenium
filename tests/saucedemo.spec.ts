@@ -92,6 +92,22 @@ describe('Saucedemo - E-commerce Application Tests', () => {
       const itemCount = await cartPage.getCartItemCount();
       expect(itemCount).to.be.greaterThan(0);
     });
+
+    it('Debe ordenar productos por precio de menor a mayor', async () => {
+      const homePage = new SaucedemoHomePage(driver);
+      await homePage.sortBy('lohi');
+      const prices = await homePage.getProductPrices();
+      const sortedPrices = [...prices].sort((a, b) => a - b);
+      expect(prices).to.deep.equal(sortedPrices);
+    });
+
+    it('Debe ordenar productos por precio de mayor a menor', async () => {
+      const homePage = new SaucedemoHomePage(driver);
+      await homePage.sortBy('hilo');
+      const prices = await homePage.getProductPrices();
+      const sortedPrices = [...prices].sort((a, b) => b - a);
+      expect(prices).to.deep.equal(sortedPrices);
+    });
   });
 
   describe('Shopping Cart Tests', () => {
