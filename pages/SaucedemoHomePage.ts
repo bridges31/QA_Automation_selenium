@@ -26,16 +26,18 @@ export class SaucedemoHomePage extends BasePage {
   }
 
   async addProductByIndex(index: number) {
-    // Anclamos al contenedor del producto (posición estable),
-    // no al selector "add-to-cart", que deja de matchear tras el clic
-    // porque el data-test del botón cambia a "remove-..."
     const products = await this.driver.findElements(By.css(this.productList));
     const product = products[index];
-    const button = await product.findElement(By.css('button'));
-    await button.click();
+    const initialButton = await product.findElement(By.css('button'));
+    await initialButton.click();
     await this.driver.wait(async () => {
-      const text = await button.getText();
-      return /remove/i.test(text);
+      try {
+        const freshButton = await product.findElement(By.css('button'));
+        const text = await freshButton.getText();
+        return /remove/i.test(text);
+      } catch {
+        return false;
+      }
     }, 10000);
   }
 
